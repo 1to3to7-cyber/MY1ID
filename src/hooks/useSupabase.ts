@@ -1,17 +1,26 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useSupabase() {
   const [loading, setLoading] = useState(false);
-  const supabase = createClient();
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null);
+
+  useEffect(() => {
+    try {
+      setSupabase(createClient());
+    } catch {
+      setSupabase(null);
+    }
+  }, []);
 
   const signIn = useCallback(
     async (email: string, password: string) => {
       setLoading(true);
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const client = createClient();
+        const { data, error } = await client.auth.signInWithPassword({
           email,
           password,
         });
@@ -26,20 +35,21 @@ export function useSupabase() {
         setLoading(false);
       }
     },
-    [supabase]
+    []
   );
 
   const signOut = useCallback(async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signOut();
+      const client = createClient();
+      const { error } = await client.auth.signOut();
       if (error) throw error;
     } catch (error) {
       console.error("Sign out error:", error);
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, []);
 
   return { supabase, signIn, signOut, loading };
 }
