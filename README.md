@@ -40,3 +40,4 @@ Copy `.env.example` to `.env.local` and fill in Supabase credentials.
 ## Deploy
 
 Push to GitHub, import into Vercel, add environment variables.
+# MY1ID 
